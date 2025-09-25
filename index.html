@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recetas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Recetario Online</h1>
+    <p>Explora recetas de todo el mundo</p>
+  </header>
+
+  <section class="search">
+    <input type="text" id="searchInput" placeholder="Buscar receta por nombre...">
+    <button onclick="searchRecipe()">Buscar</button>
+  </section>
+
+  <section id="recipes" class="recipes">
+    <h2>Recetas encontradas</h2>
+    <div id="recipe-list" class="recipe-list"></div>
+  </section>
+
+  <footer>
+    <p>💻 Creado por Julito <a href="https://github.com/jjulito" target="_blank">GitHub</a></p>
+  </footer>
+
+  <script>
+    const API_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+
+    async function searchRecipe() {
+      const query = document.getElementById("searchInput").value.trim();
+      const res = await fetch(API_URL + query);
+      const data = await res.json();
+
+      const list = document.getElementById("recipe-list");
+      list.innerHTML = "";
+
+      if (!data.meals) {
+        list.innerHTML = "<p>No se encontraron recetas.</p>";
+        return;
+      }
+
+      data.meals.forEach(meal => {
+        const card = document.createElement("div");
+        card.className = "recipe-card";
+        card.innerHTML = `
+          <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+          <h3>${meal.strMeal}</h3>
+          <p><b>Categoría:</b> ${meal.strCategory}</p>
+          <p><b>Área:</b> ${meal.strArea}</p>
+          <a href="${meal.strSource || '#'}" target="_blank">Ver receta completa</a>
+        `;
+        list.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
