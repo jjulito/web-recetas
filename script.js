@@ -1,81 +1,40 @@
-const API_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
-let comidasFiltradas = [];
-let paginaActual = 1;
-const recetasPorPagina = 8;
+const API_URL = "https://api.gustar.io/v1/recipes/search";
 
-async function searchRecipe() {
-  const query = document.getElementById("searchInput").value.trim();
-  const res = await fetch(API_URL + query);
-  const data = await res.json();
-
-  if (!data.meals) {
-    document.getElementById("recipe-list").innerHTML = `<div class="col-12 text-center"><p class="text-muted">No se encontraron recetas.</p></div>`;
-    document.getElementById("paginacion").innerHTML = "";
-    return;
+async function fetchRecipes(query = "") {
+  try {
+    const response = await fetch(`${API_URL}?query=${query}&lang=es`);
+    const data = await response.json();
+    displayRecipes(data.recipes);
+  } catch (error) {
+    console.error("Error al obtener las recetas:", error);
   }
-
-  comidasFiltradas = data.meals.filter(meal => meal.strArea !== "Russian");
-  paginaActual = 1;
-  mostrarPagina();
 }
 
-function mostrarPagina() {
-  const list = document.getElementById("recipe-list");
-  list.innerHTML = "";
+function displayRecipes(recipes) {
+  const recipeList = document.getElementById("recipe-list");
+  recipeList.innerHTML = "";
 
-  const inicio = (paginaActual - 1) * recetasPorPagina;
-  const fin = inicio + recetasPorPagina;
-  const recetasPagina = comidasFiltradas.slice(inicio, fin);
-
-  if (recetasPagina.length === 0) {
-    list.innerHTML = `<div class="col-12 text-center"><p class="text-muted">No hay recetas en esta página.</p></div>`;
+  if (!recipes || recipes.length === 0) {
+    recipeList.innerHTML = `<div class="col-12 text-center"><p class="text-muted">No se encontraron recetas.</p></div>`;
     return;
   }
 
-  recetasPagina.forEach(meal => {
+  recipes.forEach(recipe => {
     const card = document.createElement("div");
     card.className = "col-sm-6 col-md-4 col-lg-3 mb-4";
     card.innerHTML = `
-      <div class="card shadow-sm h-100">
-        <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">${meal.strMeal}</h5>
-          <p class="card-text"><strong>Categoría:</strong> ${meal.strCategory}</p>
-          <p class="card-text"><strong>Área:</strong> ${meal.strArea}</p>
-          <a href="${meal.strSource || '#'}" target="_blank" class="btn btn-primary mt-auto">Ver receta</a>
+      <div class="card shadow-sm">
+        <img src="${recipe.image}" class="card-img-top" alt="${recipe.title}">
+        <div class="card-body">
+          <h5 class="card-title">${recipe.title}</h5>
+          <p class="card-text"><strong>Categoría:</strong> ${recipe.category}</p>
+          <p class="card-text"><strong>Área:</strong> ${recipe.area}</p>
+          <a href="${recipe.source}" target="_blank" class="btn btn-primary">Ver receta</a>
         </div>
       </div>
     `;
-    list.appendChild(card);
+    recipeList.appendChild(card);
   });
-
-  mostrarPaginacion();
 }
 
-function mostrarPaginacion() {
-  const pagDiv = document.getElementById("paginacion");
-  pagDiv.innerHTML = "";
-
-  const totalPaginas = Math.ceil(comidasFiltradas.length / recetasPorPagina);
-
-  if (paginaActual > 1) {
-    const btnPrev = document.createElement("button");
-    btnPrev.className = "btn btn-secondary m-1";
-    btnPrev.textContent = "Anterior";
-    btnPrev.onclick = () => { paginaActual--; mostrarPagina(); };
-    pagDiv.appendChild(btnPrev);
-  }
-
-  if (paginaActual < totalPaginas) {
-    const btnNext = document.createElement("button");
-    btnNext.className = "btn btn-secondary m-1";
-    btnNext.textContent = "Siguiente";
-    btnNext.onclick = () => { paginaActual++; mostrarPagina(); };
-    pagDiv.appendChild(btnNext);
-  }
-
-  const info = document.createElement("span");
-  info.className = "mx-2";
-  info.textContent = `Página ${paginaActual} de ${totalPaginas}`;
-  pagDiv.appendChild(info);
-}
+fetchRecipes();
