@@ -14,10 +14,26 @@
 <body>
 
   <!-- Header -->
-  <header class="bg-gradient text-white text-center py-5">
+<header class="custom-header text-white text-center py-5">
+  <div class="container">
     <h1 class="display-4">Recetario Online</h1>
-    <p class="lead">Explora recetas de todo el mundo</p>
-  </header>
+    <p class="lead">Explora recetas de todo el mundo 🍲</p>
+  </div>
+  <style>
+    .custom-header {
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  /* Colores suaves azul-agua */
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+  </style>
+</header>
 
   <!-- Buscador -->
   <section class="container my-4">
